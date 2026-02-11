@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "username": "User",
+    "password": "123456",
+    "name": "Khách Test"
+  },
+  {
+    "id": 1769403041258,
+    "username": "TestUser",
+    "password": "123456",
+    "name": "TestUser"
+  },
+  {
+    "id": 1769403075159,
+    "username": "User1",
+    "password": "password1",
+    "name": "User1"
+  },
+  {
+    "id": 1769403831476,
+    "username": "User_New",
+    "password": "123456",
+    "name": "User_New"
+  },
+  {
+    "id": 1769404338971,
+    "username": "User2",
+    "password": "123456",
+    "name": "User2"
+  }
+]

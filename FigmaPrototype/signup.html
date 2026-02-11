@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <div style="flex: 1; padding: 2rem; overflow-y: auto; max-width: 600px; margin: 0 auto; width: 100%;">
+            <div class="text-center mb-2">
+                <h2>Tạo tài khoản</h2>
+            </div>
+
+            <form id="signupForm">
+                <div class="input-group">
+                    <input type="text" class="input-field" placeholder="Tên đăng nhập" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="input-field" placeholder="Họ và tên" required>
+                </div>
+                <div class="input-group">
+                    <input type="tel" class="input-field" placeholder="Số điện thoại" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" class="input-field" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="input-field" placeholder="Thành phố">
+                </div>
+                <div class="input-group">
+                    <input type="text" class="input-field" placeholder="Địa chỉ">
+                </div>
+                <div class="input-group">
+                    <input type="password" class="input-field" placeholder="Mật khẩu" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" class="input-field" placeholder="Nhập lại mật khẩu" required>
+                </div>
+
+                <button type="submit" class="btn mb-1">Xác nhận</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">Hủy
+                    Bỏ</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            alert('Đăng ký thành công! Vui lòng đăng nhập.');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+
+</html>

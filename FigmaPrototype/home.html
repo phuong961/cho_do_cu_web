@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .category-scroll {
+            display: flex;
+            overflow-x: auto;
+            padding: 1rem;
+            gap: 1rem;
+            scrollbar-width: none;
+        }
+
+        .category-pill {
+            padding: 8px 16px;
+            background: #eee;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .category-pill.active {
+            background: var(--text-color);
+            color: var(--white);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div style="font-weight: bold; font-size: 1.2rem;">Chợ Đồ Cũ</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <a href="post_product.html" class="btn" style="padding: 8px 16px; font-size: 0.9rem; width: auto;">Đăng
+                    sản phẩm</a>
+                <a href="my_orders.html" style="font-size: 1.2rem; text-decoration: none;"
+                    title="Đơn hàng của tôi">📦</a>
+                <a href="cart.html" style="color: var(--text-color); position: relative;">
+                    🛒 <span id="cart-count"
+                        style="position: absolute; top: -8px; right: -8px; background: red; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%;">0</span>
+                </a>
+                <div class="menu-icon" onclick="State.logout()">🚪</div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div style="padding: 0 1rem;">
+            <div class="input-group" style="margin-bottom: 0.5rem;">
+                <input type="text" class="input-field" placeholder="Tìm kiếm sản phẩm...">
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="category-scroll">
+            <div class="category-pill active" onclick="filterCategory('all', this)">Tất cả</div>
+            <div class="category-pill" onclick="filterCategory('Quần áo', this)">Quần áo</div>
+            <div class="category-pill" onclick="filterCategory('Máy tính', this)">Máy tính</div>
+            <div class="category-pill" onclick="filterCategory('Đồ điện tử', this)">Đồ điện tử</div>
+            <div class="category-pill" onclick="filterCategory('Đồ gia dụng', this)">Đồ gia dụng</div>
+            <div class="category-pill" onclick="filterCategory('Đồ nhà bếp - ăn uống', this)">Đồ nhà bếp - ăn uống</div>
+            <div class="category-pill" onclick="filterCategory('Thiết bị nhà tắm', this)">Thiết bị nhà tắm</div>
+            <div class="category-pill" onclick="filterCategory('Trang sức', this)">Trang sức</div>
+            <div class="category-pill" onclick="filterCategory('Đồng hồ', this)">Đồng hồ</div>
+            <div class="category-pill" onclick="filterCategory('Đồ cổ', this)">Đồ cổ</div>
+            <div class="category-pill" onclick="filterCategory('Khác', this)">Khác</div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="product-grid" id="product-list">
+            <!-- Rendered via JS -->
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        if (!State.currentUser) window.location.href = 'index.html';
+
+        // Render products
+        function renderProducts(category) {
+            const container = document.getElementById('product-list');
+            container.innerHTML = '';
+
+            const filteredProducts = category === 'all'
+                ? products
+                : products.filter(p => p.category === category);
+
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 2rem;">Chưa có sản phẩm nào thuộc danh mục này</div>`;
+                return;
+            }
+
+            filteredProducts.forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'product-card';
+                el.onclick = () => window.location.href = `detail.html?id=${p.id}`;
+                el.innerHTML = `
+            <img src="${p.image}" alt="${p.name}" class="product-img">
+                <div class="product-info">
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 4px;">${p.name}</div>
+                    <div class="price">${formatPrice(p.price)}</div>
+                </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        // Filter Logic
+        function filterCategory(category, element) {
+            // Update active state
+            document.querySelectorAll('.category-pill').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            // Render
+            renderProducts(category);
+        }
+
+        // Initial render
+        renderProducts('all');
+
+        // Update cart count
+        document.getElementById('cart-count').innerText = State.cart.reduce((a, b) => a + b.quantity, 0);
+    </script>
+</body>
+
+</html>

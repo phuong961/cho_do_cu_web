@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng sản phẩm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="navbar">
+            <a href="home.html" style="font-size: 1.5rem; color: var(--text-color);">←</a>
+            <h1 style="font-size: 1.2rem; margin: 0;">Đăng sản phẩm</h1>
+            <div style="width: 24px;"></div> <!-- Spacer to center title if needed, or just empty -->
+        </div>
+
+        <div class="form-container">
+            <form id="post-product-form" onsubmit="handlePostProduct(event)">
+
+                <!-- Images -->
+                <div class="form-section">
+                    <label class="form-label">Hình ảnh sản phẩm (Tối đa 4 hình)</label>
+                    <div class="image-upload-area" id="image-preview-container">
+                        <div class="image-box" onclick="triggerUpload()">
+                            <span class="upload-icon">+</span>
+                        </div>
+                    </div>
+                    <input type="file" id="image-upload" accept="image/*" multiple style="display: none;"
+                        onchange="handleImageSelect(event)">
+                    <div class="note">* Hình ảnh được upload đầu tiên sẽ được dùng để làm ảnh đại diện của sản phẩm
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="form-section">
+                    <div class="input-group">
+                        <label class="form-label">Tên sản phẩm</label>
+                        <input type="text" class="input-field" required placeholder="Nhập tên sản phẩm...">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="form-label">Danh mục sản phẩm</label>
+                        <select class="input-field" required>
+                            <option value="">Chọn danh mục</option>
+                            <option value="Quần áo">Quần áo</option>
+                            <option value="Bàn ghế">Bàn ghế</option>
+                            <option value="Máy tính">Máy tính</option>
+                            <option value="Đồ điện tử">Đồ điện tử</option>
+                            <option value="Đồ gia dụng">Đồ gia dụng</option>
+                            <option value="Đồ nhà bếp - ăn uống">Đồ nhà bếp - ăn uống</option>
+                            <option value="Thiết bị nhà tắm">Thiết bị nhà tắm</option>
+                            <option value="Trang sức">Trang sức</option>
+                            <option value="Đồng hồ">Đồng hồ</option>
+                            <option value="Đồ cổ">Đồ cổ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="form-label">Đã sử dụng</label>
+                        <select class="input-field" required>
+                            <option value="">Thời gian sử dụng</option>
+                            <option value="Dưới 1 năm">Dưới 1 năm</option>
+                            <option value="1 năm">1 năm</option>
+                            <option value="2 năm">2 năm</option>
+                            <option value="3 năm">3 năm</option>
+                            <option value="4 năm">4 năm</option>
+                            <option value="5 năm">5 năm</option>
+                            <option value="6 năm">6 năm</option>
+                            <option value="7 năm">7 năm</option>
+                            <option value="8 năm">8 năm</option>
+                            <option value="9 năm">9 năm</option>
+                            <option value="10 năm">10 năm</option>
+                            <option value="Trên 10 năm">Trên 10 năm</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="form-label">Hãng</label>
+                        <input type="text" class="input-field" placeholder="Nhập tên hãng...">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="form-label">Tình trạng</label>
+                        <select class="input-field" required>
+                            <option value="">Chọn tình trạng</option>
+                            <option value="Còn mới">Còn mới</option>
+                            <option value="Đã hao tổn nhẹ">Đã hao tổn nhẹ</option>
+                            <option value="Đã hư hỏng">Đã hư hỏng</option>
+                            <option value="Đồ cổ">Đồ cổ</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="form-label">Xuất xứ</label>
+                        <input type="text" class="input-field" placeholder="Nhập xuất xứ...">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="form-label">Mô tả chi tiết</label>
+                        <textarea class="input-field" rows="8" maxlength="1000"
+                            placeholder="Mô tả sản phẩm của bạn (tối đa 1000 ký tự)..."></textarea>
+                        <div style="text-align: right; font-size: 0.8rem; color: #999; margin-top: 4px;">0/1000</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn mb-2">Đăng bán</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Check auth
+        if (!State.currentUser) window.location.href = 'index.html';
+
+        let selectedImages = [];
+
+        function triggerUpload() {
+            if (selectedImages.length >= 4) {
+                alert("Bạn chỉ được upload tối đa 4 hình ảnh");
+                return;
+            }
+            document.getElementById('image-upload').click();
+        }
+
+        function handleImageSelect(event) {
+            const files = Array.from(event.target.files);
+            const remainingSlots = 4 - selectedImages.length;
+
+            if (files.length > remainingSlots) {
+                alert(`Bạn chỉ có thể chọn thêm ${remainingSlots} hình ảnh.`);
+            }
+
+            const filesToAdd = files.slice(0, remainingSlots);
+
+            filesToAdd.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedImages.push(e.target.result);
+                    renderImages();
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Reset input so same file can be selected again if deleted
+            event.target.value = '';
+        }
+
+        function removeImage(index) {
+            selectedImages.splice(index, 1);
+            renderImages();
+        }
+
+        function renderImages() {
+            const container = document.getElementById('image-preview-container');
+
+            // Clear current images
+            container.innerHTML = '';
+
+            selectedImages.forEach((imgSrc, index) => {
+                const el = document.createElement('div');
+                el.className = 'image-box has-image';
+                el.innerHTML = `
+                    <img src="${imgSrc}">
+                    <div class="remove-img" onclick="removeImage(${index})">×</div>
+                `;
+                container.appendChild(el);
+            });
+
+            if (selectedImages.length < 4) {
+                const addBtn = document.createElement('div');
+                addBtn.className = 'image-box';
+                addBtn.onclick = triggerUpload;
+                addBtn.innerHTML = '<span class="upload-icon">+</span>';
+                container.appendChild(addBtn);
+            }
+        }
+
+        function handlePostProduct(e) {
+            e.preventDefault();
+            if (selectedImages.length === 0) {
+                alert("Vui lòng chọn ít nhất 1 hình ảnh sản phẩm");
+                return;
+            }
+
+            alert("Đăng tin thành công!");
+            window.location.href = "home.html";
+        }
+
+        // Character count for description
+        const textarea = document.querySelector('textarea');
+        const countDisplay = textarea.nextElementSibling;
+        textarea.addEventListener('input', function () {
+            countDisplay.innerText = `${this.value.length}/1000`;
+        });
+    </script>
+</body>
+
+</html>

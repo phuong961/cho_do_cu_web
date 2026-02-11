@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="navbar">
+            <a href="home.html" style="font-size: 1.5rem; color: var(--text-color);">←</a>
+            <h1 style="font-size: 1.1rem;">Chi tiết sản phẩm</h1>
+            <a href="cart.html" style="color: var(--text-color);">
+                🛒 <span id="cart-count"
+                    style="background: red; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%;">0</span>
+            </a>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto;">
+
+            <div class="detail-container">
+                <!-- Left: Gallery -->
+                <div class="gallery-container">
+                    <img id="main-img" class="main-image" src="" alt="Main Product Image">
+                    <div class="thumbnail-row" id="thumbnail-container">
+                        <!-- Thumbnails injected here -->
+                    </div>
+                </div>
+
+                <!-- Right: Info -->
+                <div class="info-container">
+                    <h2 id="p-name" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></h2>
+                    <div class="mb-2">
+                        <span class="price" id="p-price" style="font-size: 1.5rem; margin-right: 1rem;"></span>
+                        <span
+                            style="color: var(--text-light); background: #eee; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem;">
+                            Đã sử dụng: <span id="p-usage"></span>
+                        </span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 2rem;">
+                        <button class="btn" style="flex: 1;" onclick="buyNow()">Mua ngay</button>
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="addToCart(false)">Thêm vào
+                            giỏ</button>
+                    </div>
+
+                    <!-- Specs -->
+                    <h3 style="font-size: 1.1rem;">Thông tin chi tiết</h3>
+                    <table class="spec-table mb-2">
+                        <tr>
+                            <td>Hãng</td>
+                            <td id="p-brand"></td>
+                        </tr>
+                        <tr>
+                            <td>Danh mục</td>
+                            <td id="p-category"></td>
+                        </tr>
+                        <tr>
+                            <td>Tình trạng</td>
+                            <td id="p-condition"></td>
+                        </tr>
+                        <tr>
+                            <td>Xuất xứ</td>
+                            <td id="p-origin"></td>
+                        </tr>
+                    </table>
+
+                    <!-- Description -->
+                    <h3 style="font-size: 1.1rem;">Mô tả sản phẩm</h3>
+                    <p id="p-desc" style="color: var(--text-light); margin-bottom: 1.5rem; white-space: pre-line;"></p>
+
+                    <!-- Seller Info -->
+                    <div class="seller-section">
+                        <div class="seller-header">
+                            <div>
+                                <div style="font-weight: 600;" id="s-name"></div>
+                                <div style="font-size: 0.9rem; color: var(--text-light);" id="s-phone"></div>
+                                <div style="font-size: 0.9rem; color: var(--text-light);" id="s-address"></div>
+                            </div>
+                            <button class="btn" style="width: auto; padding: 8px 16px; font-size: 0.9rem;"
+                                onclick="openChat()">Chat ngay</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Products -->
+            <div class="related-section">
+                <h3 class="mb-2">Sản phẩm tương tự</h3>
+                <div class="product-grid" id="related-grid"
+                    style="padding: 0; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                    <!-- Related items -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        const id = getQueryParam('id');
+        const product = State.getProduct(id);
+
+        if (!product) {
+            alert('Sản phẩm không tồn tại');
+            window.location.href = 'home.html';
+        } else {
+            renderProduct();
+            renderRelated();
+        }
+
+        function renderProduct() {
+            // Basic Info
+            document.getElementById('p-name').innerText = product.name;
+            document.getElementById('p-price').innerText = formatPrice(product.price);
+            document.getElementById('p-usage').innerText = product.usage || "N/A";
+            document.getElementById('p-desc').innerText = product.desc;
+
+            // Specs
+            document.getElementById('p-category').innerText = product.category || "Khác";
+            document.getElementById('p-brand').innerText = product.brand || "Khác";
+            document.getElementById('p-condition').innerText = product.condition || "N/A";
+            document.getElementById('p-origin').innerText = product.origin || "N/A";
+
+            // Seller
+            document.getElementById('s-name').innerText = "Người bán: " + (product.seller || "Ẩn danh");
+            document.getElementById('s-phone').innerText = "SĐT: " + (product.phone || "Liên hệ qua chat");
+            document.getElementById('s-address').innerText = "Địa chỉ: " + (product.address || "N/A");
+
+            // Images
+            const mainImg = document.getElementById('main-img');
+            const thumbContainer = document.getElementById('thumbnail-container');
+
+            // Use mock string array or fallback to single image property
+            const images = product.images || [product.image];
+            mainImg.src = images[0];
+
+            images.forEach((img, idx) => {
+                const thumb = document.createElement('img');
+                thumb.src = img;
+                thumb.className = `thumb ${idx === 0 ? 'active' : ''}`;
+                thumb.onclick = () => {
+                    mainImg.src = img;
+                    document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                };
+                thumbContainer.appendChild(thumb);
+            });
+        }
+
+        function renderRelated() {
+            const related = State.getRelatedProducts(product.category, product.id);
+            const grid = document.getElementById('related-grid');
+
+            if (related.length === 0) {
+                grid.innerHTML = '<p style="color: #999;">Không có sản phẩm tương tự.</p>';
+                return;
+            }
+
+            related.forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'product-card';
+                el.onclick = () => window.location.href = `detail.html?id=${p.id}`;
+                el.innerHTML = `
+                    <img src="${p.image}" class="product-img" style="height: 120px;">
+                    <div class="product-info">
+                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;">${p.name}</div>
+                        <div class="price" style="font-size: 0.9rem;">${formatPrice(p.price)}</div>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        function addToCart(redirect = false) {
+            State.addToCart(product);
+            updateCartCount();
+            if (redirect) {
+                window.location.href = 'cart.html';
+            }
+        }
+
+        function buyNow() {
+            addToCart(true);
+        }
+
+        function openChat() {
+            alert(`Đang kết nối chat với ${product.seller || 'Người bán'}...`);
+        }
+
+        function updateCartCount() {
+            const count = State.cart.reduce((a, b) => a + b.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        // Init cart count
+        updateCartCount();
+    </script>
+</body>
+
+</html>

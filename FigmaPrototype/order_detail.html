@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết đơn hàng</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .section {
+            background: var(--white);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .label {
+            color: var(--text-light);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <a href="my_orders.html" style="font-size: 1.5rem; color: var(--text-color);">←</a>
+            <h1>Chi tiết đơn hàng</h1>
+            <div style="width: 24px;"></div>
+        </div>
+
+        <div style="flex: 1; padding: 1rem; overflow-y: auto;" id="detail-content">
+            <!-- Rendered via JS -->
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        const id = getQueryParam('id');
+        const type = getQueryParam('type'); // 'purchased' or 'sold'
+
+        if (!id || !type) {
+            alert('Đơn hàng không hợp lệ');
+            window.location.href = 'my_orders.html';
+        }
+
+        let order = null;
+        if (type === 'purchased') {
+            order = State.purchasedOrders.find(o => o.id == id);
+        } else {
+            order = State.soldOrders.find(o => o.id == id);
+        }
+
+        if (!order) {
+            alert('Không tìm thấy đơn hàng');
+            window.location.href = 'my_orders.html';
+        } else {
+            renderOrderDetail();
+        }
+
+        function renderOrderDetail() {
+            const container = document.getElementById('detail-content');
+            const isPurchased = type === 'purchased';
+            const firstItem = order.items[0];
+
+            // Person Info
+            let personLabel = isPurchased ? 'Thông tin Người bán' : 'Thông tin Người mua';
+            let personName = isPurchased ? (firstItem.seller || 'Shop ABC') : (order.buyerName || 'Nguyễn Văn A');
+            let personAddress = isPurchased ? (firstItem.address || 'Hà Nội') : (order.buyerAddress || 'TP.HCM');
+            let personPhone = isPurchased ? (firstItem.phone || '0909090909') : (order.buyerPhone || '0901234567');
+
+            container.innerHTML = `
+                <!-- Order Status/ID -->
+                <div class="section">
+                    <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">Đơn hàng #${order.id}</div>
+                    <div style="color: #27ae60; font-weight: 600;">Đã hoàn thành</div>
+                    <div style="font-size: 0.9rem; color: var(--text-light); margin-top: 4px;">Ngày đặt: ${new Date().toLocaleDateString('vi-VN')}</div>
+                </div>
+
+                <!-- Person Info -->
+                <div class="section">
+                    <h3 style="font-size: 1rem; margin-bottom: 10px;">${personLabel}</h3>
+                    <div class="info-row">
+                        <span class="label">Họ tên:</span>
+                        <span style="font-weight: 600;">${personName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Số điện thoại:</span>
+                        <span>${personPhone}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Địa chỉ:</span>
+                        <span style="text-align: right; max-width: 60%;">${personAddress}</span>
+                    </div>
+                </div>
+
+                <!-- Product List -->
+                <div class="section">
+                    <h3 style="font-size: 1rem; margin-bottom: 10px;">Sản phẩm</h3>
+                    ${order.items.map(item => `
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                            <img src="${item.image}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 0.9rem;">${item.name}</div>
+                                <div style="color: var(--text-light); font-size: 0.85rem;">x${item.quantity}</div>
+                                <div style="font-weight: 600; color: var(--primary-color);">${formatPrice(item.price)}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Summary -->
+                <div class="section">
+                    <div class="info-row">
+                        <span class="label">Tổng tiền hàng:</span>
+                        <span>${formatPrice(order.total)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phí vận chuyển:</span>
+                        <span>0 đ</span>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 8px 0;">
+                    <div class="info-row" style="font-weight: 700; font-size: 1.1rem;">
+                        <span>Thành tiền:</span>
+                        <span style="color: var(--primary-color);">${formatPrice(order.total)}</span>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

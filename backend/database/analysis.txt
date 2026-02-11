@@ -1,0 +1,6 @@
+ID: 3b5c4c98-3000-48fc-a950-bef7655f429d
+Category ID: 01cc3d9b-5638-4ccd-8058-d9f0a9b0815c
+City: 
+Price: 1000 (number)
+Image Length: 6894467
+Image Start: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD

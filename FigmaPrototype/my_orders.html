@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <a href="home.html" style="font-size: 1.5rem; color: var(--text-color);">←</a>
+            <h1>Đơn hàng của tôi</h1>
+            <div style="width: 24px;"></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab-item active" onclick="switchTab('purchased')">Đơn hàng đã mua</div>
+            <div class="tab-item" onclick="switchTab('sold')">Đơn hàng bán</div>
+        </div>
+
+        <!-- Content -->
+        <div style="flex: 1; overflow-y: auto; padding: 1rem;" id="order-list">
+            <!-- Rendered via JS -->
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Tab switching logic
+        let currentTab = 'purchased';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            if (tab === 'purchased') {
+                document.querySelectorAll('.tab-item')[0].classList.add('active');
+                renderOrders(State.purchasedOrders, 'purchased');
+            } else {
+                document.querySelectorAll('.tab-item')[1].classList.add('active');
+                renderOrders(State.soldOrders, 'sold');
+            }
+        }
+
+        function renderOrders(orders, type) {
+            const container = document.getElementById('order-list');
+            container.innerHTML = '';
+
+            if (orders.length === 0) {
+                container.innerHTML = `<div style="text-align: center; margin-top: 2rem; color: var(--text-light);">Không có đơn hàng nào</div>`;
+                return;
+            }
+
+            orders.forEach(order => {
+                // If it's a multi-item order, we might want to show individual items or grouped. 
+                // For simplicity as per requirement "mỗi đơn hàng là một component", let's assume flat list of items or grouped orders.
+                // Requirement says: "information on the order will have order code, total money, thumbnail image of the product, product name, seller/buyer info"
+                // This implies "Line Item" style or "Order with one main product".
+                // Since our cart can have multiple items, let's just pick the first item to show as thumbnail/name for now, or loop.
+                // However, the checkout creates a single "Order" with a total.
+                // Let's assume an Order contains a list of items, but we display it concisely.
+
+                // Construct display data
+                const isPurchased = type === 'purchased';
+                const firstItem = order.items[0];
+                const productCount = order.items.length;
+                const otherCountStr = productCount > 1 ? ` (+${productCount - 1} sản phẩm khác)` : '';
+
+                // Mock Person Info (Seller or Buyer)
+                // For Purchased Orders: Show Seller (Who sold it to me?) - In a real app, products might have different sellers. 
+                // Simplified: Show the seller of the first product.
+                // For Sold Orders: Show Buyer (Who bought it?) - This comes from the mock sold order data.
+
+                let personLabel = isPurchased ? 'Người bán' : 'Người mua';
+                let personName = isPurchased ? (firstItem.seller || 'Shop ABC') : (order.buyerName || 'Nguyễn Văn A');
+                let personAddress = isPurchased ? (firstItem.address || 'Hà Nội') : (order.buyerAddress || 'TP.HCM');
+                let personPhone = isPurchased ? (firstItem.phone || '0909090909') : (order.buyerPhone || '0901234567');
+
+                const el = document.createElement('div');
+                el.className = 'order-card';
+                // Add click event for redirection
+                el.onclick = () => {
+                    window.location.href = `order_detail.html?id=${order.id}&type=${type}`;
+                };
+                el.innerHTML = `
+                    <img src="${firstItem.image}" alt="${firstItem.name}" class="order-img">
+                    <div class="order-info">
+                        <div class="order-header">
+                            <span>Mã ĐH: #${order.id}</span>
+                            <span style="color: var(--primary-color); font-weight: 700;">${formatPrice(order.total)}</span>
+                        </div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">${firstItem.name} ${otherCountStr}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 4px;">Số lượng: ${firstItem.quantity}</div>
+                        
+                        <div class="person-info">
+                            <div><strong>${personLabel}:</strong> ${personName}</div>
+                            <div>Địa chỉ: ${personAddress}</div>
+                            <div>SDT: ${personPhone}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        // Initialize
+        if (!State.currentUser) {
+            window.location.href = 'index.html';
+        } else {
+            switchTab('purchased');
+        }
+    </script>
+</body>
+
+</html>

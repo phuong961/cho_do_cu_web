@@ -1,0 +1,21 @@
+[
+  {
+    "userId": 1,
+    "items": [
+      {
+        "id": 1,
+        "name": "Áo khoác vintage",
+        "price": 350000,
+        "quantity": 1
+      }
+    ],
+    "total": 350000,
+    "shippingInfo": {
+      "name": "User",
+      "phone": "0123456789",
+      "address": "Hanoi"
+    },
+    "id": "ORD-1769404889392",
+    "date": "2026-01-26T05:21:29.392Z"
+  }
+]

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cart-item {
+            display: flex;
+            background: var(--white);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            align-items: center;
+        }
+
+        .cart-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f1f2f6;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .qty-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="navbar">
+            <a href="home.html" style="font-size: 1.5rem; color: var(--text-color);">←</a>
+            <h1>Giỏ hàng của bạn</h1>
+            <div style="width: 24px;"></div>
+        </div>
+
+        <div style="flex: 1; padding: 1rem; overflow-y: auto;" id="cart-list">
+            <!-- Rendered via JS -->
+            <div class="text-center mt-3" style="color: var(--text-light);">
+                Giỏ hàng của bạn đang trống
+            </div>
+        </div>
+
+        <!-- Summary & Checkout -->
+        <div style="padding: 1.5rem; background: var(--white); border-top: 1px solid #eee; margin-top: auto;">
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-weight: 700; font-size: 1.1rem;">
+                <span>Tổng cộng:</span>
+                <span id="total-price">0 đ</span>
+            </div>
+            <button class="btn" id="checkout-btn" onclick="window.location.href='checkout.html'" disabled>Đặt đơn
+                hàng</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        function renderCart() {
+            const container = document.getElementById('cart-list');
+            const totalEl = document.getElementById('total-price');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            if (State.cart.length === 0) {
+                container.innerHTML = '<div class="text-center mt-3" style="color: var(--text-light);">Giỏ hàng của bạn đang trống</div>';
+                totalEl.innerText = '0 đ';
+                checkoutBtn.disabled = true;
+                checkoutBtn.style.opacity = '0.5';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            // Render items
+            State.cart.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'cart-item';
+                // Select first item by default
+                const isChecked = index === 0 ? 'checked' : '';
+
+                el.innerHTML = `
+                    <div style="margin-right: 10px;">
+                        <input type="radio" name="cartItem" value="${item.id}" ${isChecked} 
+                               onchange="updateSelection(${item.id})" style="transform: scale(1.2);">
+                    </div>
+                    <img src="${item.image}" class="cart-img">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;">${item.name}</div>
+                        <div class="price" style="font-size: 0.9rem;">${formatPrice(item.price)}</div>
+                    </div>
+                    <div class="qty-controls">
+                        <span style="font-weight: 600;">Số lượng: ${item.quantity}</span>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+
+            checkoutBtn.disabled = false;
+            checkoutBtn.style.opacity = '1';
+
+            // Initial Total Calculation based on first item
+            updateSelection(State.cart[0].id);
+        }
+
+        function updateSelection(id) {
+            const item = State.cart.find(p => p.id === id);
+            if (item) {
+                const total = item.price * item.quantity;
+                document.getElementById('total-price').innerText = formatPrice(total);
+                State.setCheckoutItem(item);
+            }
+        }
+
+        function updateQty(id, change) {
+            State.updateQuantity(id, change);
+            renderCart();
+        }
+
+        renderCart();
+    </script>
+</body>
+
+</html>
