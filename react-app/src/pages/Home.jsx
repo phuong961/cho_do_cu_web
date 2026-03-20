@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import ProductCard from '../components/ProductCard';
 import { useAppContext } from '../context/AppContext';
@@ -9,7 +10,8 @@ const CATEGORIES = [
 ];
 
 const Home = () => {
-    const { products, currentUser, refreshProducts, logout } = useAppContext();
+    const { products, currentUser, refreshProducts, logout, checkAuth } = useAppContext();
+    const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState("Tất cả");
 
     React.useEffect(() => {
@@ -46,16 +48,13 @@ const Home = () => {
                     )}
                     <p style={{ color: 'var(--text-light)' }}>Bạn muốn tìm gì hôm nay?</p>
                 </div>
-                {currentUser && (
-                    <a href="/post-product" className="btn" style={{ width: 'auto', padding: '10px 20px' }}>
-                        + Đăng tin
-                    </a>
-                )}
-                {!currentUser && (
-                    <a href="/login" className="btn" style={{ width: 'auto', padding: '10px 20px' }}>
-                        Đăng nhập
-                    </a>
-                )}
+                <div
+                    onClick={() => checkAuth(() => navigate('/post-product'))}
+                    className="btn"
+                    style={{ width: 'auto', padding: '10px 20px', cursor: 'pointer' }}
+                >
+                    + Đăng tin
+                </div>
             </div>
 
             {/* Categories */}
@@ -86,14 +85,18 @@ const Home = () => {
                 ))}
             </div>
 
-            <a href="/my-orders" style={{
-                position: 'fixed', bottom: '20px', right: '20px',
-                background: 'var(--primary-color)', color: 'white',
-                padding: '12px 20px', borderRadius: '30px',
-                boxShadow: 'var(--shadow)', fontWeight: 'bold'
-            }}>
+            <div
+                onClick={() => checkAuth(() => navigate('/my-orders'))}
+                style={{
+                    position: 'fixed', bottom: '20px', right: '20px',
+                    background: 'var(--primary-color)', color: 'white',
+                    padding: '12px 20px', borderRadius: '30px',
+                    boxShadow: 'var(--shadow)', fontWeight: 'bold',
+                    cursor: 'pointer'
+                }}
+            >
                 Đơn hàng của tôi
-            </a>
+            </div>
         </div>
     );
 };

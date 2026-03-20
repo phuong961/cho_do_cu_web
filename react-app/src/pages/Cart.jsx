@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
 const Cart = () => {
-    const { cart, setCheckoutItem } = useAppContext();
+    const { cart, setCheckoutItem, removeFromCart } = useAppContext();
     const [selectedId, setSelectedId] = useState(null);
     const navigate = useNavigate();
 
@@ -16,6 +16,16 @@ const Cart = () => {
             setSelectedId(cart[0].id);
         }
     }, [cart, selectedId]);
+
+    const handleRemove = (e, id) => {
+        e.stopPropagation(); // Prevent selecting the radio button when clicking delete
+        if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+            removeFromCart(id);
+            if (selectedId === id) {
+                setSelectedId(null);
+            }
+        }
+    };
 
     const handleCheckout = () => {
         const item = cart.find(p => p.id === selectedId);
@@ -39,7 +49,7 @@ const Cart = () => {
                     </div>
                 ) : (
                     cart.map((item, index) => (
-                        <div key={item.id} className="cart-item">
+                        <div key={item.id} className="cart-item" onClick={() => setSelectedId(item.id)} style={{ cursor: 'pointer' }}>
                             <div style={{ marginRight: '10px' }}>
                                 <input
                                     type="radio"
@@ -54,8 +64,29 @@ const Cart = () => {
                                 <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '4px' }}>{item.name}</div>
                                 <div className="price" style={{ fontSize: '0.9rem' }}>{formatPrice(item.price)}</div>
                             </div>
-                            <div className="qty-controls">
-                                <span style={{ fontWeight: 600 }}>Số lượng: {item.quantity}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <div className="qty-controls">
+                                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Số lượng: {item.quantity}</span>
+                                </div>
+                                <button
+                                    onClick={(e) => handleRemove(e, item.id)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#e74c3c',
+                                        cursor: 'pointer',
+                                        fontSize: '1.2rem',
+                                        padding: '5px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: '50%',
+                                        transition: 'background 0.2s'
+                                    }}
+                                    title="Xóa khỏi giỏ hàng"
+                                >
+                                    🗑️
+                                </button>
                             </div>
                         </div>
                     ))

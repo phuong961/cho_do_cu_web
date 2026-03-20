@@ -156,10 +156,10 @@ router.post('/', async (req, res) => {
         const primaryImage = savedImages.length > 0 ? savedImages[0] : (image && !image.startsWith('data:image') ? image : "/assets/no-image.png");
 
         const result = await pool.query(
-            `INSERT INTO products (name, price, image, images, description, category_id, usage, brand, condition, city, seller, address, phone) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) 
+            `INSERT INTO products (name, price, image, images, description, category_id, usage, brand, condition, city, seller, address, phone, user_id) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) 
              RETURNING *`,
-            [name, Math.round(price), primaryImage, savedImages, desc, category, usage, brand, condition, city, seller, address, phone]
+            [name, Math.round(price), primaryImage, savedImages, desc, category, usage, brand, condition, city, seller, address, phone, user_id]
         );
 
         const row = result.rows[0];

@@ -9,6 +9,7 @@ const PostProduct = () => {
     const [selectedImages, setSelectedImages] = useState([]);
     const [desc, setDesc] = useState('');
     const [categories, setCategories] = useState([]);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         price: '',
@@ -111,9 +112,8 @@ const PostProduct = () => {
             });
 
             if (res.ok) {
-                alert("Đăng tin thành công!");
                 refreshProducts();
-                navigate('/');
+                setShowSuccessModal(true);
             } else {
                 alert("Có lỗi xảy ra khi đăng tin.");
             }
@@ -269,6 +269,59 @@ const PostProduct = () => {
                     <button type="submit" className="btn mb-2">Đăng bán</button>
                 </form>
             </div>
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000,
+                    padding: '2rem'
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '2rem',
+                        borderRadius: '16px',
+                        maxWidth: '400px',
+                        width: '100%',
+                        textAlign: 'center',
+                        boxShadow: 'var(--shadow)'
+                    }}>
+                        <div style={{
+                            width: '60px',
+                            height: '60px',
+                            backgroundColor: '#e7f9ed',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 1.5rem',
+                            fontSize: '30px',
+                            color: '#27ae60'
+                        }}>
+                            ✓
+                        </div>
+                        <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--text-color)' }}>Đăng tin thành công!</h2>
+                        <p style={{ color: 'var(--text-light)', marginBottom: '2rem', lineHeight: '1.5' }}>
+                            Bạn đã đăng tin sản phẩm thành công, cám ơn đã sử dụng Chợ Đồ Cũ
+                        </p>
+                        <button
+                            className="btn"
+                            onClick={() => navigate('/')}
+                            style={{ backgroundColor: 'var(--primary-color)' }}
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

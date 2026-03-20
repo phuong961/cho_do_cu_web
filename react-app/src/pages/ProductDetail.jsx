@@ -6,7 +6,7 @@ import { useAppContext } from '../context/AppContext';
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { products, addToCart, refreshProducts } = useAppContext();
+    const { products, addToCart, cart, refreshProducts, checkAuth } = useAppContext();
 
     React.useEffect(() => {
         refreshProducts();
@@ -19,12 +19,20 @@ const ProductDetail = () => {
         return <div className="app-container" style={{ padding: '2rem' }}>Sản phẩm không tồn tại. <button onClick={() => navigate('/')}>Về trang chủ</button></div>;
     }
 
+    const isInCart = cart.some(item => item.id === product.id);
+
     const images = product.images || [product.image];
     const [mainImg, setMainImg] = useState(images[0]);
 
     const handleBuyNow = () => {
-        addToCart(product); // Add then redirect
-        navigate('/cart');
+        checkAuth(() => {
+            if (isInCart) {
+                navigate('/cart');
+                return;
+            }
+            addToCart(product);
+            setTimeout(() => navigate('/cart'), 100); // Small delay to let state update
+        });
     };
 
     return (
@@ -61,8 +69,21 @@ const ProductDetail = () => {
                     </div>
 
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '2rem' }}>
-                        <button className="btn" style={{ flex: 1 }} onClick={handleBuyNow}>Mua ngay</button>
-                        <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => addToCart(product)}>Thêm vào giỏ</button>
+                        <button
+                            className="btn"
+                            style={{ flex: 1, backgroundColor: isInCart ? '#95a5a6' : 'var(--primary-color)' }}
+                            onClick={handleBuyNow}
+                        >
+                            {isInCart ? 'Xem trong giỏ' : 'Mua ngay'}
+                        </button>
+                        <button
+                            className="btn btn-secondary"
+                            style={{ flex: 1, opacity: isInCart ? 0.5 : 1, cursor: isInCart ? 'not-allowed' : 'pointer' }}
+                            onClick={() => !isInCart && checkAuth(() => addToCart(product))}
+                            disabled={isInCart}
+                        >
+                            {isInCart ? 'Đã trong giỏ' : 'Thêm vào giỏ'}
+                        </button>
                     </div>
 
                     <h3 style={{ fontSize: '1.1rem' }}>Thông tin chi tiết</h3>

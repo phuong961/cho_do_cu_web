@@ -14,9 +14,12 @@ const Checkout = () => {
     const [phone, setPhone] = React.useState('');
     const [city, setCity] = React.useState('Hồ Chí Minh');
     const [address, setAddress] = React.useState('');
+    const [showConfirmModal, setShowConfirmModal] = React.useState(false);
+    const [showSuccessModal, setShowSuccessModal] = React.useState(false);
+    const [orderSuccess, setOrderSuccess] = React.useState(false);
 
     useEffect(() => {
-        if (!checkoutItem) {
+        if (!checkoutItem && !orderSuccess) {
             alert('Vui lòng chọn sản phẩm để thanh toán!');
             navigate('/cart');
         }
@@ -28,42 +31,54 @@ const Checkout = () => {
             setCity(currentUser.city || 'Hồ Chí Minh');
             setAddress(currentUser.address || '');
         }
-    }, [checkoutItem, navigate, currentUser]);
+    }, [checkoutItem, navigate, currentUser, orderSuccess]);
 
-    if (!checkoutItem) return null;
+    if (!checkoutItem && !orderSuccess) return null;
 
-    const subtotal = checkoutItem.price * checkoutItem.quantity;
+    // Use a fallback to prevent crash when checkoutItem is cleared after success
+    const subtotal = checkoutItem ? (checkoutItem.price * checkoutItem.quantity) : 0;
 
-    const handleConfirm = async () => {
+    const handleConfirm = () => {
         if (!name || !phone || !city || !address) {
             alert('Vui lòng điền đầy đủ thông tin vận chuyển!');
             return;
         }
+        setShowConfirmModal(true);
+    };
 
-        if (window.confirm('Xác nhận đặt hàng?')) {
-            const orderData = {
-                userId: currentUser?.id,
-                items: [{
-                    id: checkoutItem.id,
-                    name: checkoutItem.name,
-                    price: checkoutItem.price,
-                    quantity: checkoutItem.quantity,
-                    image: checkoutItem.image
-                }],
-                total: subtotal,
-                shippingInfo: {
-                    name: name,
-                    phone: phone,
-                    city: city,
-                    address: address
-                }
-            };
+    const handleFinalConfirm = async () => {
+        const orderData = {
+            userId: currentUser?.id,
+            items: [{
+                id: checkoutItem.id,
+                name: checkoutItem.name,
+                price: checkoutItem.price,
+                quantity: checkoutItem.quantity,
+                image: checkoutItem.image
+            }],
+            total: subtotal,
+            shippingInfo: {
+                name: name,
+                phone: phone,
+                city: city,
+                address: address
+            }
+        };
 
+        try {
             await addOrder(orderData);
+            setOrderSuccess(true);
             purchaseCheckoutItem();
-            alert('Đặt hàng thành công! Cảm ơn bạn đã mua sắm.');
-            navigate('/my-orders');
+            setShowConfirmModal(false);
+            setShowSuccessModal(true);
+        } catch (err) {
+            alert("Có lỗi xảy ra khi đặt hàng.");
         }
+    };
+
+    const handleModalClose = () => {
+        setShowSuccessModal(false);
+        navigate('/my-orders');
     };
 
     return (
@@ -128,10 +143,10 @@ const Checkout = () => {
                 <div style={{ background: 'var(--white)', padding: '1rem', borderRadius: '8px', boxShadow: 'var(--shadow)' }}>
                     {/* Product Info */}
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #eee' }}>
-                        <img src={checkoutItem.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} alt="Thumb" />
+                        <img src={checkoutItem?.image} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} alt="Thumb" />
                         <div>
-                            <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{checkoutItem.name}</div>
-                            <div style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>x{checkoutItem.quantity}</div>
+                            <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{checkoutItem?.name}</div>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>x{checkoutItem?.quantity}</div>
                         </div>
                     </div>
 
@@ -154,6 +169,105 @@ const Checkout = () => {
             <div style={{ padding: '1.5rem', background: 'var(--white)' }}>
                 <button className="btn" onClick={handleConfirm}>Xác nhận đặt hàng</button>
             </div>
+
+            {/* Confirmation Modal */}
+            {showConfirmModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000,
+                    padding: '2rem'
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '2rem',
+                        borderRadius: '16px',
+                        maxWidth: '400px',
+                        width: '100%',
+                        textAlign: 'center',
+                        boxShadow: 'var(--shadow)'
+                    }}>
+                        <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Xác nhận đặt hàng</h2>
+                        <p style={{ color: 'var(--text-light)', marginBottom: '2rem' }}>Bạn có chắc chắn muốn đặt sản phẩm?</p>
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setShowConfirmModal(false)}
+                                style={{ flex: 1 }}
+                            >
+                                Hủy bỏ
+                            </button>
+                            <button
+                                className="btn"
+                                onClick={handleFinalConfirm}
+                                style={{ flex: 1 }}
+                            >
+                                Xác nhận
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000,
+                    padding: '2rem'
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '2rem',
+                        borderRadius: '16px',
+                        maxWidth: '400px',
+                        width: '100%',
+                        textAlign: 'center',
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }}>
+                        <div style={{
+                            width: '60px',
+                            height: '60px',
+                            backgroundColor: '#e7f9ed',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 1.5rem',
+                            fontSize: '30px',
+                            color: '#27ae60'
+                        }}>
+                            ✓
+                        </div>
+                        <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--text-color)' }}>Đặt hàng thành công!</h2>
+                        <p style={{ color: 'var(--text-light)', marginBottom: '2rem', lineHeight: '1.5' }}>
+                            Bạn đã đặt hàng thành công, cám ơn bạn đã sử dụng Chợ Đồ Cũ
+                        </p>
+                        <button
+                            className="btn"
+                            onClick={handleModalClose}
+                            style={{ backgroundColor: 'var(--primary-color)' }}
+                        >
+                            Okay
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

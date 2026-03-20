@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
 const MyOrders = () => {
-    const { purchasedOrders, currentUser } = useAppContext();
+    const { purchasedOrders, soldOrders, currentUser } = useAppContext();
     const [currentTab, setCurrentTab] = useState('purchased');
     const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ const MyOrders = () => {
         return null;
     }
 
-    const orders = currentTab === 'purchased' ? purchasedOrders : [];
+    const orders = currentTab === 'purchased' ? purchasedOrders : soldOrders;
 
     return (
         <div className="app-container">

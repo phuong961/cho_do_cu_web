@@ -7,18 +7,18 @@ const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency
 const OrderDetail = () => {
     const { orderId } = useParams();
     const navigate = useNavigate();
-    const { purchasedOrders } = useAppContext();
+    const { purchasedOrders, soldOrders } = useAppContext();
     const [order, setOrder] = useState(null);
 
     useEffect(() => {
-        const foundOrder = purchasedOrders.find(o => o.id === orderId);
+        const foundOrder = purchasedOrders.find(o => o.id === orderId) || soldOrders.find(o => o.id === orderId);
         if (foundOrder) {
             setOrder(foundOrder);
         } else {
             alert('Không tìm thấy đơn hàng!');
             navigate('/my-orders');
         }
-    }, [orderId, purchasedOrders, navigate]);
+    }, [orderId, purchasedOrders, soldOrders, navigate]);
 
     if (!order) return null;
 
